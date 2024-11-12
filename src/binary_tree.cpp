@@ -22,7 +22,6 @@ int main() {
     AddNode(int_tree.root_node->right_node->left_node, 55, LEFT_NODE);
     AddNode(int_tree.root_node->right_node->right_node, 75, LEFT_NODE);
     PrintTree(int_tree.root_node);
-    printf("\n");
     TreeDestruct(&int_tree);
 
     TreeInit(&double_tree);
@@ -56,7 +55,7 @@ template <typename T>
 TreeErrors TreeInit(Tree<T>* tree) {
     check_expression(tree, NODE_POINTER_IS_NULL);
 
-    tree->number_of_nodes = 0;
+    tree->error           = NO_TREE_ERRORS;
     tree->root_node       = NULL;
     T root_node_value     = {};
     CreateNode<T>(&(tree->root_node), root_node_value);
@@ -82,10 +81,12 @@ TreeErrors CreateNode(TreeNode<T>** node, T value) {
     *node = (TreeNode<T>*)calloc(1, sizeof(TreeNode<T>));
     warning(node, NODE_CALLOC_ERROR);
 
-    (*node)->value       = value;
-    (*node)->left_node   = NULL;
-    (*node)->right_node  = NULL;
-    (*node)->parent_node = NULL;
+    (*node)->value          = value;
+    (*node)->error          = NO_TREE_ERRORS;
+    (*node)->number_of_kids = CHILD_FREE;
+    (*node)->left_node      = NULL;
+    (*node)->right_node     = NULL;
+    (*node)->parent_node    = NULL;
 
     return NO_TREE_ERRORS;
 }
@@ -95,12 +96,16 @@ TreeErrors LinkNodes(TreeNode<T>* parent_node, TreeNode<T>* child_node, int conn
     check_expression(parent_node, NODE_POINTER_IS_NULL);
     check_expression(child_node , NODE_POINTER_IS_NULL);
 
-    child_node->parent_node     = parent_node;
+    child_node->parent_node = parent_node;
 
+    //It makes for ability to put in connection_side difference between parent and child values
+    //So it's much easier to use binary_tree as sort_tree
     if(connection_side > 0) {
+        check_expression(!parent_node->right_node, NODE_ALREADY_TAKEN);
         parent_node->right_node = child_node;
     }
     else if(connection_side < 0) {
+        check_expression(!parent_node->left_node, NODE_ALREADY_TAKEN);
         parent_node->left_node  = child_node;
     }
     else {
@@ -108,6 +113,8 @@ TreeErrors LinkNodes(TreeNode<T>* parent_node, TreeNode<T>* child_node, int conn
 
         check_expression(false, NODES_CONNECTION_ERROR);
     }
+
+    parent_node->number_of_kids++;
 
     return NO_TREE_ERRORS;
 }
@@ -123,7 +130,7 @@ TreeErrors TreeDestruct(Tree<T>* tree) {
 
 template <typename T>
 TreeErrors NodesDestruct(TreeNode<T>** node) {
-    check_expression(node, TREE_POINTER_IS_NULL);
+    check_expression(node, NODE_POINTER_IS_NULL);
 
     if((*node)->left_node ) NodesDestruct(&((*node)->left_node));
     if((*node)->right_node) NodesDestruct(&((*node)->right_node));
@@ -135,7 +142,7 @@ TreeErrors NodesDestruct(TreeNode<T>** node) {
 }
 
 TreeErrors NodesDestruct(TreeNode<char*>** node) {
-    check_expression(node, TREE_POINTER_IS_NULL);
+    check_expression(node, NODE_POINTER_IS_NULL);
 
     if((*node)->left_node ) NodesDestruct(&((*node)->left_node));
     if((*node)->right_node) NodesDestruct(&((*node)->right_node));
@@ -148,10 +155,62 @@ TreeErrors NodesDestruct(TreeNode<char*>** node) {
     return NO_TREE_ERRORS;
 }
 
-template <typename T> //TODO
+template <typename T>
 TreeErrors VerifyTree(Tree<T>* tree) {
+    check_expression(tree,      TREE_POINTER_IS_NULL);
+
+    tree->error = VerifyNodes(tree->root_node);
+
+    return tree->error;
+}
+
+template <typename T>
+TreeErrors VerifyNodes(TreeNode<T>* node) {
+    check_expression(node, NODE_POINTER_IS_NULL);
+
+    int count_kids = 0;
+
+    if(node->left_node) {
+        node->error = ParentCheck(node, node->left_node);
+        check_expression(!node->error, PARENT_LOST_CHILD);
+
+        node->error = VerifyNodes(node->left_node);
+        check_expression(!node->error, node->error);
+        count_kids++;
+    }
+    if(node->right_node) {
+        node->error = ParentCheck(node, node->right_node);
+        check_expression(!node->error, PARENT_LOST_CHILD);
+
+        node->error = VerifyNodes(node->right_node);
+        check_expression(!node->error, node->error);
+        count_kids++;
+    }
+
+    if(node->number_of_kids > count_kids) {
+        node->error = NODE_LOST_KIDS;
+    }
+    else if(node->number_of_kids < count_kids) {
+        node->error = NODE_FOREIGN_KIDS;
+    }
+
+    return node->error;
+}
+
+template <typename T>
+TreeErrors ParentCheck(TreeNode<T>* parent, TreeNode<T>* child) {
+    check_expression(parent, NODE_POINTER_IS_NULL);
+    check_expression(child,  NODE_POINTER_IS_NULL);
+
+    if(child->parent_node != parent) {
+        child->error = PARENT_LOST_CHILD;
+
+        return PARENT_LOST_CHILD;
+    }
+
     return NO_TREE_ERRORS;
 }
+
 
 //This function takes node as argument to add ability
 //   of print not only the full tree but also subtree
