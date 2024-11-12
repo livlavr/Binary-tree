@@ -59,7 +59,7 @@ TreeErrors TreeInit(Tree<T>* tree) {
 
     tree->error           = NO_TREE_ERRORS;
     tree->root_node       = NULL;
-    tree->number_of_kids  = 0;
+    tree->number_of_kids  = 1;
     T root_node_value     = {};
     CreateNode<T>(&(tree->root_node), root_node_value);
     tree->root_node->tree = tree;
@@ -119,6 +119,7 @@ TreeErrors LinkNodes(TreeNode<T>* parent_node, TreeNode<T>* child_node, int conn
         check_expression(false, NODES_CONNECTION_ERROR);
     }
 
+    parent_node->tree->number_of_kids++;
     parent_node->number_of_kids++;
 
     return NO_TREE_ERRORS;
@@ -148,6 +149,8 @@ TreeErrors NodesDtor(TreeNode<T>** node) {
     if((*node)->left_node ) NodesDtor(&((*node)->left_node));
     if((*node)->right_node) NodesDtor(&((*node)->right_node));
 
+    (*node)->tree->number_of_kids--;
+
     free(*node);
     *node = NULL;
 
@@ -162,6 +165,8 @@ TreeErrors NodesDtor(TreeNode<char*>** node) {
     if((*node)->left_node ) NodesDtor(&((*node)->left_node));
     if((*node)->right_node) NodesDtor(&((*node)->right_node));
 
+    (*node)->tree->number_of_kids--;
+
     free((*node)->value);
     (*node)->value = NULL;
     free(*node);
@@ -174,7 +179,6 @@ template <typename T>
 TreeErrors VerifyTree(Tree<T>* tree) {
     check_expression(tree,      TREE_POINTER_IS_NULL);
 
-    tree->root_node->tree->number_of_kids
     tree->error = VerifyNodes(tree->root_node);
 
     return tree->error;
@@ -210,7 +214,7 @@ TreeErrors VerifyNodes(TreeNode<T>* node) {
         node->error = NODE_FOREIGN_KIDS;
     }
 
-    node->error = RepeatsCheck(node);
+    node->error = RepeatsCheck(node);//TODO wrap should be in all func, after verify
 
     // printf("[ %p ] - NODE\t", node);
     // printf("< %d > - ERROR\n", node->error);
@@ -241,25 +245,50 @@ template <typename T>
 TreeErrors RepeatsCheck(TreeNode<T>* node) {
     if(node) return NO_TREE_ERRORS;
 
-    T* array_of_values = NULL;
+    int count_checking_nodes = 0;
+    T* array_of_values       = NULL;
 
+    //Use more memory if check SubTree
+    array_of_values = (T*)calloc(node->tree->number_of_kids, sizeof(T));
 
+    FillValuesArray(node, array_of_values, count_checking_nodes);
 
-    FillValuesArray(node, array_of_values);
+    array_of_values = (T*)realloc(array_of_values, count_checking_nodes * sizeof(T));
 
-    FindElement();
+    node->tree->error = FindElement(array_of_values, count_checking_nodes);
 
     free(array_of_values);
+
+    return node->tree->error;
 }
 
 template <typename T>
-TreeErrors FillValuesArray(TreeNode<T>* node, T* array_of_values) {
+TreeErrors FillValuesArray(TreeNode<T>* node, T* array_of_values, int* count_checking_nodes) {
+    warning(array_of_values, NULL_ARRAY_OF_VALUES);
+    check_expression(node, NODE_POINTER_IS_NULL  );
 
+    *array_of_values = node->value;
+    (*count_checking_nodes)++;
+
+    if(node->left_node ) FillValuesArray(node->left_node , ++array_of_values, count_checking_nodes);
+    if(node->right_node) FillValuesArray(node->right_node, ++array_of_values, count_checking_nodes);
+
+    return NO_TREE_ERRORS;
 }
 
 template <typename T>
-TreeErrors FindElement(T new_value, T* exist_values) {
-    for(int i = 0; i < )
+TreeErrors FindRepeats(T* array_of_values, int count_checking_nodes) {
+    check_expression(array_of_values, NULL_ARRAY_OF_VALUES);
+
+    for(int i = 0; i < count_checking_nodes - 1; i++) {
+        for(int j = i + 1; j < count_checking_nodes; j++) {
+            if(array_of_values[i] == array_of_values[j]) {
+                return REPEATED_NODES_VALUES;
+            }
+        }
+    }
+
+    return NO_TREE_ERRORS;
 }
 
 //TODO paste verifier everywhere

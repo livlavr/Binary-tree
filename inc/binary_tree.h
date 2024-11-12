@@ -17,7 +17,8 @@ enum TreeErrors {
     NODE_FOREIGN_KIDS       = 1 << 7,
     PARENT_LOST_CHILD       = 1 << 8,
     REPEATED_NODES_VALUES   = 1 << 9,
-    CHILD_ON_DIFFERENT_TREE = 1 << 10
+    CHILD_ON_DIFFERENT_TREE = 1 << 10,
+    NULL_ARRAY_OF_VALUES    = 1 << 11
 };
 template <typename T>
 struct TreeNode;
@@ -41,34 +42,38 @@ struct TreeNode {
 };
 
 template <typename T>
-TreeErrors TreeInit     (Tree<T>*          tree     );
+TreeErrors TreeInit       (Tree<T>*          tree     );
 template <typename T>
-TreeErrors VerifyTree   (Tree<T>*          tree     );
+TreeErrors VerifyTree     (Tree<T>*          tree     );
 template <typename T>
-TreeErrors VerifyNodes  (TreeNode<T>*      node     );
+TreeErrors VerifyNodes    (TreeNode<T>*      node     );
 template <typename T>
-TreeErrors ParentCheck  (TreeNode<T>*      node     );
+TreeErrors ParentCheck    (TreeNode<T>*      node     );
 template <typename T>
-TreeErrors RepeatsCheck (TreeNode<T>* original_node,
-                         TreeNode<T>* comparing_node);
+TreeErrors RepeatsCheck   (TreeNode<T>* original_node, TreeNode<T>* comparing_node);
 template <typename T>
-TreeErrors TreeDtor     (Tree<T>*          tree     );
+TreeErrors FillValuesArray(TreeNode<T>* node, T* array_of_values, int* count_checking_nodes);
 template <typename T>
-TreeErrors NodesDtor    (TreeNode<T>**     node     );
-TreeErrors NodesDtor    (TreeNode<char*>** node     );
+TreeErrors FindRepeats    (T* array_of_values, int count_checking_nodes);
 
 template <typename T>
-TreeErrors AddNode      (TreeNode<T>* node, T value, int connection_side);
+TreeErrors TreeDtor       (Tree<T>*          tree     );
 template <typename T>
-TreeErrors CreateNode   (TreeNode<T>* node, T value                     );
-template <typename T>
-TreeErrors LinkNodes    (TreeNode<T>* parent_node, TreeNode<T>* child_node, int connection_side);
-template <typename T>
-TreeErrors FindRoot     (TreeNode<T>* node                              );
+TreeErrors NodesDtor      (TreeNode<T>**     node     );
+TreeErrors NodesDtor      (TreeNode<char*>** node     );
 
-void PrintTree          (TreeNode<int>*    node);
-void PrintTree          (TreeNode<double>* node);
-void PrintTree          (TreeNode<char*>*  node);
+template <typename T>
+TreeErrors AddNode        (TreeNode<T>* node, T value, int connection_side);
+template <typename T>
+TreeErrors CreateNode     (TreeNode<T>* node, T value );
+template <typename T>
+TreeErrors LinkNodes      (TreeNode<T>* parent_node, TreeNode<T>* child_node, int connection_side);
+template <typename T>
+TreeErrors FindRoot       (TreeNode<T>*      node     );
+
+void PrintTree            (TreeNode<int>*    node     );
+void PrintTree            (TreeNode<double>* node     );
+void PrintTree            (TreeNode<char*>*  node     );
 
 //PREORDER_PRINT
 #define PreorderPrintTree_(node_ptr) \
