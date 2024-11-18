@@ -34,6 +34,8 @@
 test*
 build/
 .DS_Store
+Tree-dumps/
+Dump-source/
 
 #dSYM
 *.out.dSUM
