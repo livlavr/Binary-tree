@@ -3,28 +3,8 @@ splines=ortho;
 rankdir=HR;
 nodesep=0.4;
 node [shape=record, fontname="Arial"];
-edge [style=bold, color="#5f5dbd:black;0.001", weight=10, penwidth=4.5, arrowsize=0.3];
-P0x12fe05fc0
-[style = "filled, rounded", fillcolor="#a4fbe3",
-label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-  <TR><TD ROWSPAN="1" COLSPAN="200" BGCOLOR="yellow">Value = 50</TD></TR>
-  <TR><TD ROWSPAN="1" COLSPAN="200" BGCOLOR="lightblue">Number of kids</TD></TR>
-  <TR>
-  <TD ROWSPAN="1" BGCOLOR="yellow">Node = 0x12fe05fc0</TD>
-  <TD ROWSPAN="1" COLSPAN="100" BGCOLOR="lightblue">Parent = 0x0</TD>
-  </TR>
-</TABLE>>
-]
-P0x11ff04080 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 55 | Number of kids = 0 | Node = 0x11ff04080 | Parent = 0x12fe05fc0 | Error = 0 | {Left = 0x0 | Right = 0x0}}" ];
-P0x11ff040b0 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 70 | Number of kids = 2 | Node = 0x11ff040b0 | Parent = 0x12fe05fc0 | Error = 0 | {Left = 0x11ff04110 | Right = 0x11ff040e0}}" ];
-P0x11ff04110 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 60 | Number of kids = 1 | Node = 0x11ff04110 | Parent = 0x11ff040b0 | Error = 0 | {Left = 0x11ff04140 | Right = 0x0}}" ];
-P0x11ff04140 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 90 | Number of kids = 0 | Node = 0x11ff04140 | Parent = 0x11ff04110 | Error = 0 | {Left = 0x0 | Right = 0x0}}" ];
-P0x11ff04110 -> P0x11ff04140
-P0x11ff040e0 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 80 | Number of kids = 1 | Node = 0x11ff040e0 | Parent = 0x11ff040b0 | Error = 0 | {Left = 0x11ff04170 | Right = 0x0}}" ];
-P0x11ff04170 [style = "filled, rounded", fillcolor="#a4fbe3",label=" { Value = 75 | Number of kids = 0 | Node = 0x11ff04170 | Parent = 0x11ff040e0 | Error = 0 | {Left = 0x0 | Right = 0x0}}" ];
-P0x11ff040e0 -> P0x11ff04170
-P0x11ff040b0 -> P0x11ff04110
-P0x11ff040b0 -> P0x11ff040e0
-P0x12fe05fc0 -> P0x11ff04080
-P0x12fe05fc0 -> P0x11ff040b0
+edge [style=bold, color="black", weight=10, penwidth=4, arrowsize=0.2];
+P0x133704080 [style = "filled, rounded", fillcolor="yellow:magenta" gradientangle=270,label=" {Node = [ 0x133704080 ] | Parent = [ 0x0 ] | Error = 0 | Number of kids = 1 | HASH = 11544414700744567333 | VALUE = huilanchik | { <l> LEFT = [ 0x134504080 ] | <r> RIGHT = [ 0x0 ]}}" ];
+P0x134504080 [style = "filled, rounded", fillcolor="yellow:magenta" gradientangle=270,label=" {Node = [ 0x134504080 ] | Parent = [ 0x133704080 ] | Error = 0 | Number of kids = 0 | HASH = 16084043127095048977 | VALUE = oduvanchik | { <l> LEFT = [ 0x0 ] | <r> RIGHT = [ 0x0 ]}}" ];
+P0x133704080:<l> -> P0x134504080
 }

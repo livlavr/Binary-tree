@@ -11,13 +11,13 @@
 //FUNCTION DECLARATION-----------------------------------------------------------------------
 
 template <typename T>
-TreeErrors TreeInit(Tree<T>* tree) {
+TreeErrors TreeInit(Tree<T>* tree, T root_value) {
     check_expression(tree, NODE_POINTER_IS_NULL);
 
-    tree->error      = NO_TREE_ERRORS;
-    tree->root       = NULL;
-    tree->dump_file  = NULL;
-    T root_value     = {};
+    tree->error           = NO_TREE_ERRORS;
+    tree->root            = NULL;
+    tree->dump_svg_file   = NULL;
+    tree->dump_html_file  = NULL;
     CreateNode<T>(&(tree->root), root_value);
     SetDumpFile(tree);
 
@@ -74,7 +74,7 @@ template <typename T>
 TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_side) {
     check_expression(parent, NODE_POINTER_IS_NULL);
     check_expression(child , NODE_POINTER_IS_NULL);
-    check_expression(CheckRepeats(parent, child) == NO_TREE_ERRORS, REPEATED_NODES_VALUES);
+    check_expression(!CheckRepeats(parent, child), REPEATED_NODES_VALUES);
 
     child->parent = parent;
     //It makes for ability to put in connection_side difference between parent and child values
@@ -105,6 +105,12 @@ TreeErrors TreeDtor(Tree<T>* tree) {
     check_expression(tree, TREE_POINTER_IS_NULL);
 
     NodesDtor(&(tree->root));
+
+    free(tree->dump_svg_file);
+    tree->dump_svg_file = NULL;
+
+    free(tree->dump_html_file);
+    tree->dump_html_file = NULL;
 
     return NO_TREE_ERRORS;
 }
@@ -245,10 +251,12 @@ template <>
 TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
     if(!parent) return NO_TREE_ERRORS;
 
+
     if(parent->value == child->value) {
         return REPEATED_NODES_VALUES;
     }
     if(parent->hash == child->hash) {
+        printf("HUIII\n");
         if(strcmp(parent->value, child->value) == 0) {
             color_printf(RED_TEXT, BOLD, "Value : \"%s\" already in BinaryTree.\n", child->value);
             return REPEATED_NODES_VALUES;
@@ -326,13 +334,6 @@ uint32_t Hash(char* str) {
 #define PreorderPrintTree_(node_ptr) \
     PrintTree(node_ptr);             \
     printf("\n")
-
-//NO_REPEATS_MACROS
-#ifdef NO_REPEATS
-    #define NoRepeats_(argument) argument
-#else
-    #define NoRepeats_(argument) ;
-#endif
 
 //-------------------------------------------------------------------------------------------
 

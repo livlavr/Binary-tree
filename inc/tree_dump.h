@@ -2,92 +2,100 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "custom_asserts.h"
 
 #ifndef TREE_DUMP_H_
 #define TREE_DUMP_H_
 
-template<typename T>
-TYPE_OF_ERROR TreeDump(Tree<T>* tree);
-template<typename T>
-TYPE_OF_ERROR SetDumpFile(Tree<T>* tree);
-inline TYPE_OF_ERROR ProcessFilename(char* filename);
-template <typename T>
-TYPE_OF_ERROR DumpPrintTree(TreeNode<T>* node, FILE* dump_file);
-template <typename T>
-TYPE_OF_ERROR DumpPrintNode(TreeNode<T>* node, FILE* dump_file);
-template <>
-TYPE_OF_ERROR DumpPrintNode<int>(TreeNode<int>* node, FILE* dump_file);
-template <>
-TYPE_OF_ERROR DumpPrintNode<double>(TreeNode<double>* node, FILE* dump_file);
-template <>
-TYPE_OF_ERROR DumpPrintNode<char*>(TreeNode<char*>* node, FILE* dump_file);
+static const char* HTML_HEADER = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t"
+                                  "<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\""
+                                  "content=\"width=device-width, initial-scale=1.0\">\n\t"
+                                  "<title>Document</title>\n</head>\n<body>\n"
+                                  "<style>.line {border-bottom: 10px solid orange;}</style>\n"
+                                  "<div style = \"text-align: center;\" class = \"line\">";
 
-static const size_t SIZE_OF_BUFFER = 40;
+template<typename T>
+TYPE_OF_ERROR TreeDump           (Tree<T>* tree                          );
+template<typename T>
+TYPE_OF_ERROR SetDumpFile        (Tree<T>* tree                          );
+inline
+TYPE_OF_ERROR ProcessFilename    (char*    filename                      );
+template <typename T>
+TYPE_OF_ERROR ProcessTree        (TreeNode<T>*      node, FILE* dot_file );
+template <typename T>
+TYPE_OF_ERROR ProcessNode        (TreeNode<T>*      node, FILE* dot_file );
+template <>
+TYPE_OF_ERROR ProcessNode<int>   (TreeNode<int>*    node, FILE* dot_file );
+template <>
+TYPE_OF_ERROR ProcessNode<double>(TreeNode<double>* node, FILE* dot_file );
+template <>
+TYPE_OF_ERROR ProcessNode<char*> (TreeNode<char*>*  node, FILE* dot_file );
+template <typename T>
+TYPE_OF_ERROR OutputToHtml       (Tree<T>  tree                          );
+TYPE_OF_ERROR PrintHtmlHeader    (FILE*    dump_file                     );
+
+static const size_t SIZE_OF_BUFFER = 40;//TODO
 
 template<typename T>
 TYPE_OF_ERROR TreeDump(Tree<T>* tree) {
-    check_expression(tree, POINTER_IS_NULL);
+    check_expression(tree,       POINTER_IS_NULL);
     check_expression(tree->root, POINTER_IS_NULL);
 
     system("mkdir -p Dump-source");
 
-    FILE* dump_file = fopen("Dump-source/dump.dot", "w");
+    FILE* dot_file = fopen("Dump-source/dump.dot", "w");
 
-    warning(dump_file, FILE_OPEN_ERROR);
+    warning(dot_file, FILE_OPEN_ERROR);
 
     //Header of graphviz file
-    fprintf(dump_file, "digraph tree{\nsplines=ortho;\nrankdir=HR;\nnodesep=0.4;"
+    fprintf(dot_file, "digraph tree{\nsplines=ortho;\nrankdir=HR;\nnodesep=0.4;"
                        "\nnode [shape=record, fontname=\"Arial\"];\n"
-                       "edge [style=bold, color=\"#5f5dbd:black;0.001\", weight=10, penwidth=4.5, "
-                       "arrowsize=0.3];\n");
+                       "edge [style=bold, color=\"black\", weight=10, penwidth=4, "
+                       "arrowsize=0.2];\n");
 
-    DumpPrintTree(tree->root, dump_file);
+    ProcessTree<T>(tree->root, dot_file);
 
-    fprintf(dump_file, "}\n");
+    fprintf(dot_file, "}\n");
 
-    fclose(dump_file);
+    fclose(dot_file);
 
-    char system_duffer[100] = "";
-    strcat(system_duffer, "dot -Tpng Dump-source/dump.dot -o ");
-    strcat(system_duffer, tree->dump_file);
-
-    system(system_duffer);
-
-    strcpy(system_duffer, "");
-    strcat(system_duffer, "open ");
-    strcat(system_duffer, tree->dump_file);
-
-    system(system_duffer);
+    OutputToHtml<T>(*tree);
 
     return SUCCESS;
 }
 
 template<typename T>
-TYPE_OF_ERROR SetDumpFile(Tree<T>* tree)
-{
+TYPE_OF_ERROR SetDumpFile(Tree<T>* tree) {
     check_expression(tree, POINTER_IS_NULL);
 
-    char *buffer = (char*)calloc(SIZE_OF_BUFFER, sizeof(char));
+    char *buffer_svg  = (char*)calloc(SIZE_OF_BUFFER, sizeof(char));
+    char *buffer_html = (char*)calloc(SIZE_OF_BUFFER, sizeof(char));
 
-    warning(buffer, CALLOC_ERROR);
+    warning(buffer_svg,  CALLOC_ERROR);
+    warning(buffer_html, CALLOC_ERROR);
 
     time_t my_time          = time(NULL);
     char*  time             = ctime(&my_time);
     time[strlen(time) - 1]  = '\0';
     size_t time_char_length = strlen(time) - 1;
-    const char *folder_name = "Tree-dumps/";
+    const char *folder_name = "./Tree-dumps/";
 
     system("mkdir -p Tree-dumps");
 
-    strcpy(buffer, folder_name);
-    strncpy(buffer + strlen(folder_name), time, time_char_length);
-    strcat(buffer, ".png");
+    strcpy (buffer_svg,  folder_name);
+    strcpy (buffer_html, folder_name);
+    strncpy(buffer_svg  + strlen(folder_name), time, time_char_length);
+    strncpy(buffer_html + strlen(folder_name), time, time_char_length);
+    strcat (buffer_svg,  ".svg" );
+    strcat (buffer_html, ".html");
 
-    ProcessFilename(buffer);
+    ProcessFilename(buffer_svg );
+    ProcessFilename(buffer_html);
 
-    tree->dump_file = buffer;
+    tree->dump_svg_file  = buffer_svg;
+    tree->dump_html_file = buffer_html;
 
     return SUCCESS;
 }
@@ -108,65 +116,104 @@ TYPE_OF_ERROR ProcessFilename(char* filename) {
 }
 
 template <typename T>
-TYPE_OF_ERROR DumpPrintTree(TreeNode<T>* node, FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
+TYPE_OF_ERROR ProcessTree(TreeNode<T>* node, FILE* dot_file) {
+    check_expression(dot_file, POINTER_IS_NULL);
     if(!node) return SUCCESS;
 
-    DumpPrintNode<T>(node, dump_file);
+    ProcessNode<T>(node, dot_file);
 
-    DumpPrintTree(node->left,  dump_file);
-    DumpPrintTree(node->right, dump_file);
+    ProcessTree(node->left,  dot_file);
+    ProcessTree(node->right, dot_file);
 
-    if(node->left ) fprintf(dump_file, "P%p -> P%p\n", node, node->left);
-    if(node->right) fprintf(dump_file, "P%p -> P%p\n", node, node->right);
+    if(node->left ) fprintf(dot_file, "P%p:<l> -> P%p\n", node, node->left);
+    if(node->right) fprintf(dot_file, "P%p:<r> -> P%p\n", node, node->right);
 
     return SUCCESS;
 }
 
 template <typename T>
-TYPE_OF_ERROR DumpPrintNode(TreeNode<T>* node, FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
-    check_expression(node, POINTER_IS_NULL);
+TYPE_OF_ERROR ProcessNode(TreeNode<T>* node, FILE* dot_file) {
+    check_expression(dot_file, POINTER_IS_NULL);
+    check_expression(node,      POINTER_IS_NULL);
 
-    fprintf(dump_file, "P%p [style = \"filled, rounded\", fillcolor=\"#a4fbe3\","
-          "label=\" {Value = Undefined Type | Number of kids = %d | Left = %p | Right = %p | Node = %p | Parent = %p | Error = %d}\" ];\n",
-           node, node->number_of_kids, node->left, node->right, node, node->parent, node->error);
-
-    return SUCCESS;
-}
-
-template <>
-TYPE_OF_ERROR DumpPrintNode<int>(TreeNode<int>* node, FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
-    check_expression(node, POINTER_IS_NULL);
-
-    fprintf(dump_file, "P%p [style = \"filled, rounded\", fillcolor=\"#a4fbe3\","
-          "label=\" { Value = %d | Number of kids = %d | Node = %p | Parent = %p | Error = %d | {Left = %p | Right = %p}}\" ];\n",
-           node, node->value, node->number_of_kids, node, node->parent, node->error, node->left, node->right);
+    fprintf(dot_file, "P%p [style = \"filled, rounded\", fillcolor=\"yellow:magenta\" gradientangle=270,"
+          "label=\" {Node = [ %p ] | Parent = [ %p ] | Error = %d | Number of kids = %d | VALUE = Unsupported Type | { <l> LEFT = [ %p ] | <r> RIGHT = [ %p ]}}\" ];\n",
+           node, node, node->parent, node->error, node->number_of_kids, node->left, node->right);
 
     return SUCCESS;
 }
 
 template <>
-TYPE_OF_ERROR DumpPrintNode<double>(TreeNode<double>* node, FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
-    check_expression(node, POINTER_IS_NULL);
+TYPE_OF_ERROR ProcessNode<int>(TreeNode<int>* node, FILE* dot_file) {
+    check_expression(dot_file, POINTER_IS_NULL);
+    check_expression(node,      POINTER_IS_NULL);
 
-    fprintf(dump_file, "P%p [style = \"filled, rounded\", fillcolor=\"#a4fbe3\","
-          "label=\" {Value = %.3lf | Number of kids = %d | Left = %p | Right = %p | Node = %p | Parent = %p | Error = %d}\" ];\n",
-           node, node->value, node->number_of_kids, node->left, node->right, node, node->parent, node->error);
+    fprintf(dot_file, "P%p [style = \"filled, rounded\", fillcolor=\"yellow:magenta\" gradientangle=270,"
+          "label=\" {Node = [ %p ] | Parent = [ %p ] | Error = %d | Number of kids = %d | VALUE = %d | { <l> LEFT = [ %p ] | <r> RIGHT = [ %p ]}}\" ];\n",
+           node, node, node->parent, node->error, node->number_of_kids, node->value, node->left, node->right);
 
     return SUCCESS;
 }
 
 template <>
-TYPE_OF_ERROR DumpPrintNode<char*>(TreeNode<char*>* node, FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
-    check_expression(node, POINTER_IS_NULL);
+TYPE_OF_ERROR ProcessNode<double>(TreeNode<double>* node, FILE* dot_file) {
+    check_expression(dot_file, POINTER_IS_NULL);
+    check_expression(node,      POINTER_IS_NULL);
 
-    fprintf(dump_file, "P%p [style = \"filled, rounded\", fillcolor=\"#a4fbe3\","
-          "label=\" {Value = %s | Hash = %lu | Number of kids = %d | Left = %p | Right = %p | Node = %p | Parent = %p | Error = %d}\" ];\n",
-           node, node->value, node->number_of_kids, node->left, node->right, node, node->parent, node->error);
+    fprintf(dot_file, "P%p [style = \"filled, rounded\", fillcolor=\"yellow:magenta\" gradientangle=270,"
+          "label=\" {Node = [ %p ] | Parent = [ %p ] | Error = %d | Number of kids = %d | VALUE = %.3lf | { <l> LEFT = [ %p ] | <r> RIGHT = [ %p ]}}\" ];\n",
+           node, node, node->parent, node->error, node->number_of_kids, node->value, node->left, node->right);
+
+    return SUCCESS;
+}
+
+template <>
+TYPE_OF_ERROR ProcessNode<char*>(TreeNode<char*>* node, FILE* dot_file) {
+    check_expression(dot_file, POINTER_IS_NULL);
+    check_expression(node,      POINTER_IS_NULL);
+
+    fprintf(dot_file, "P%p [style = \"filled, rounded\", fillcolor=\"yellow:magenta\" gradientangle=270,"
+          "label=\" {Node = [ %p ] | Parent = [ %p ] | Error = %d | Number of kids = %d | HASH = %lu | VALUE = %s | { <l> LEFT = [ %p ] | <r> RIGHT = [ %p ]}}\" ];\n",
+           node, node, node->parent, node->error, node->number_of_kids, node->hash, node->value, node->left, node->right);
+
+    return SUCCESS;
+}
+
+template <typename T> //TODO check do i give a pointer and copy of tree for optimization
+TYPE_OF_ERROR OutputToHtml(Tree<T> tree) {
+    FILE* svg_file  = fopen(tree.dump_svg_file,  "w");
+    FILE* html_file = fopen(tree.dump_html_file, "a");
+
+    warning(svg_file,  FILE_OPEN_ERROR);
+    warning(html_file, FILE_OPEN_ERROR);
+
+    PrintHtmlHeader(html_file);
+
+    char system_buffer[600] = "";
+
+    snprintf(system_buffer, 600, "echo \'%s\' >> %s; "
+             "dot -Tsvg Dump-source/dump.dot >> %s; echo \'</div><br></body>\n\' >> %s",
+             HTML_HEADER, tree.dump_html_file, tree.dump_html_file, tree.dump_html_file);
+
+    system(system_buffer);
+
+    fclose(svg_file);
+    fclose(html_file);
+
+    memset(system_buffer, 0, 300);
+    snprintf(system_buffer, 300, "open %s", tree.dump_html_file);
+
+    system(system_buffer);
+
+    return SUCCESS;
+}
+
+TYPE_OF_ERROR PrintHtmlHeader(FILE* dump_file) {
+    check_expression(dump_file, POINTER_IS_NULL);
+
+    fprintf(dump_file, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">"
+                       "\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                       "\n\t<title>Document</title>\n</head>\n<body>\n");
 
     return SUCCESS;
 }

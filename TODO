@@ -1,12 +1,12 @@
-[] Verifier
-[] Delete subtree function
-[] Error in binary tree structure (Could be also in nodes to know in what node)
-[] Is_node_available parameter in node structure
+[x] Verifier
+[x] Delete subtree function
+[x] Error in binary tree structure (Could be also in nodes to know in what node)
 [] information data in tree_structure and nodes (make no_debug define)
 [x] child_free
 [] separate h files
-[] mv tree.cpp -> tree.h file
-[] BONUS str_cmp -> hash (if hash1 == hash2 -> call str_cmp to make sure isn't it a collusion)
+[x] mv tree.cpp -> tree.h file
+[x] BONUS str_cmp -> hash (if hash1 == hash2 -> call str_cmp to make sure isn't it a collusion)
 [] Sosal?
 [] livetime keys parsing
 [] If Error in node -> make it red
+[] Fopen -> Open

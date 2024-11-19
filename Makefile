@@ -1,6 +1,6 @@
 CXX           = gcc-14
 
-SRC           = binary_tree.cpp
+SRC           = main.cpp
 SUBMODULE_SRC = Color-printf/color_printf.cpp
 
 BUILD_DIR     = ./build/
@@ -43,7 +43,7 @@ all : $(addprefix $(SRC_DIR), $(SRC))
 	$(addprefix $(BUILD_DIR), $(TARGET))
 
 clean :
-	@rm -f -r $(addprefix $(BUILD_DIR), *.o) $(TARGET) *.dSYM Llist-dumps/*
+	@rm -f -r $(addprefix $(BUILD_DIR), *.o) $(TARGET) *.dSYM Tree-dumps/*
 	@printf  "$(YELLOW_TEXT)$(TARGET) CLEANED$(DEFAULT_TEXT)\n"
 
 doxy :

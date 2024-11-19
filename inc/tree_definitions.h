@@ -47,19 +47,20 @@ template <typename T>
 struct Tree {
     TreeNode<T>* root;
     TreeErrors   error;//TODO wrapper ndebug
-    char*        dump_file;
+    char*        dump_svg_file;
+    char*        dump_html_file;
 };
 
 //FUNCTION DEFINITION------------------------------------------------------------------------
 //TODO codestyle
 template <typename T>
-TreeErrors TreeInit        (Tree<T>*          tree     );
+TreeErrors TreeInit        (Tree<T>* tree, T root_value);
 template <typename T>
-TreeErrors VerifyTree      (Tree<T>*          tree     );
+TreeErrors VerifyTree      (Tree<T>*            tree   );
 template <typename T>
-TreeErrors VerifyNodes     (TreeNode<T>*      node     );
+TreeErrors VerifyNodes     (TreeNode<T>*        node   );
 template <typename T>
-TreeErrors CheckParent     (TreeNode<T>*      node     );
+TreeErrors CheckParent     (TreeNode<T>*        node   );
 template <typename T>
 TreeErrors CheckRepeats    (TreeNode<T>*        parent,
                             TreeNode<T>*        child  );
@@ -76,30 +77,30 @@ TreeErrors FindRepeats<char*>(TreeNode<char*>*  parent,
                               TreeNode<char*>*  child  );
 
 template <typename T>
-TreeErrors TreeDtor        (Tree<T>*          tree     );
+TreeErrors TreeDtor        (Tree<T>*            tree   );
 template <typename T>
-TreeErrors NodesDtor       (TreeNode<T>**     node     );
+TreeErrors NodesDtor       (TreeNode<T>**       node   );
 template <>
-TreeErrors NodesDtor<char*>(TreeNode<char*>** node     );
+TreeErrors NodesDtor<char*>(TreeNode<char*>**   node   );
 
 template <typename T>
-TreeErrors AddNode         (TreeNode<T>*       node, T value, int connection_side);
+TreeErrors AddNode         (TreeNode<T>*        node, T value, int connection_side);
 template <typename T>
 TreeErrors CreateNode      (TreeNode<T>**       node, T     value                 );
 template <>
-TreeErrors CreateNode<char*>(TreeNode<char*>** node, char* value                  );
+TreeErrors CreateNode<char*>(TreeNode<char*>**  node, char* value                 );
 template <typename T>
-TreeErrors LinkNodes       (TreeNode<T>*       parent_node, TreeNode<T>* child_node,
+TreeErrors LinkNodes       (TreeNode<T>* parent_node, TreeNode<T>* child_node,
                             int connection_side                                   );
 
 template <typename T>
-void PrintTree             (TreeNode<T>*      node    );
+void PrintTree             (TreeNode<T>*        node   );
 template <>
-void PrintTree<int>        (TreeNode<int>*    node    );
+void PrintTree<int>        (TreeNode<int>*      node   );
 template <>
-void PrintTree<double>     (TreeNode<double>* node    );
+void PrintTree<double>     (TreeNode<double>*   node   );
 template <>
-void PrintTree<char*>      (TreeNode<char*>*  node    );
+void PrintTree<char*>      (TreeNode<char*>*    node   );
 
 uint32_t Hash(char* str);
 //-------------------------------------------------------------------------------------------
