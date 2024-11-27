@@ -1,8 +1,8 @@
 #ifndef TREE_DEFINITIONS_H_
 #define TREE_DEFINITIONS_H_
 
-static const int LEFT_NODE  = -1;
-static const int RIGHT_NODE =  1;
+static const int LEFT_SIDE  = -1;
+static const int RIGHT_SIDE =  1;
 static const int CHILD_FREE =  0;
 
 enum TreeErrors {
@@ -54,55 +54,55 @@ struct Tree {
 //FUNCTION DEFINITION------------------------------------------------------------------------
 //TODO codestyle
 template <typename T>
-TreeErrors TreeInit        (Tree<T>* tree, T root_value);
+TreeErrors TreeInit                 (Tree<T>* tree, T root_value);
 template <typename T>
-TreeErrors VerifyTree      (Tree<T>*            tree   );
+TreeErrors VerifyTree               (Tree<T>*            tree   );
 template <typename T>
-TreeErrors VerifyNodes     (TreeNode<T>*        node   );
+TreeErrors VerifyNodes              (TreeNode<T>*        node   );
 template <typename T>
-TreeErrors CheckParent     (TreeNode<T>*        node   );
+TreeErrors CheckParent              (TreeNode<T>*        node   );
 template <typename T>
-TreeErrors CheckRepeats    (TreeNode<T>*        parent,
-                            TreeNode<T>*        child  );
+TreeErrors CheckRepeats             (TreeNode<T>*        parent,
+                                     TreeNode<T>*        child  );
 template <>
-TreeErrors CheckRepeats<char*>(TreeNode<char*>* parent,
-                               TreeNode<char*>* child  );
+TreeErrors CheckRepeats<char*>      (TreeNode<char*>*  parent,
+                                     TreeNode<char*>*  child  );
 template <typename T>
-TreeNode<T>* FindRoot      (TreeNode<T>*        node   );
+TreeNode<T>* FindRoot               (TreeNode<T>*      node   );
 template <typename T>
-TreeErrors FindRepeats     (TreeNode<T>*        parent,
-                            TreeNode<T>*        child  );
+inline TreeErrors FindRepeats       (TreeNode<T>*      parent,
+                                     TreeNode<T>*      child  );
 template <>
-TreeErrors FindRepeats<char*>(TreeNode<char*>*  parent,
-                              TreeNode<char*>*  child  );
+inline TreeErrors FindRepeats<char*>(TreeNode<char*>*  parent,
+                                     TreeNode<char*>*  child  );
 
 template <typename T>
-TreeErrors TreeDtor        (Tree<T>*            tree   );
+TreeErrors TreeDtor                 (Tree<T>*            tree   );
 template <typename T>
-TreeErrors NodesDtor       (TreeNode<T>**       node   );
+inline TreeErrors NodesDtor         (TreeNode<T>**       node   );
 template <>
-TreeErrors NodesDtor<char*>(TreeNode<char*>**   node   );
+inline TreeErrors NodesDtor<char*>  (TreeNode<char*>**   node   );
 
 template <typename T>
-TreeErrors AddNode         (TreeNode<T>*        node, T value, int connection_side);
+TreeErrors AddNode                  (TreeNode<T>*        node, T value, int connection_side);
 template <typename T>
-TreeErrors CreateNode      (TreeNode<T>**       node, T     value                 );
+inline TreeErrors CreateNode        (TreeNode<T>**       node, T     value                 );
 template <>
-TreeErrors CreateNode<char*>(TreeNode<char*>**  node, char* value                 );
+inline TreeErrors CreateNode<char*> (TreeNode<char*>**  node, char* value                  );
 template <typename T>
-TreeErrors LinkNodes       (TreeNode<T>* parent_node, TreeNode<T>* child_node,
-                            int connection_side                                   );
+TreeErrors LinkNodes                (TreeNode<T>* parent_node, TreeNode<T>* child_node,
+                                     int connection_side                                   );
 
 template <typename T>
-void PrintTree             (TreeNode<T>*        node   );
+inline void PrintTree               (TreeNode<T>*        node   );
 template <>
-void PrintTree<int>        (TreeNode<int>*      node   );
+inline void PrintTree<int>          (TreeNode<int>*      node   );
 template <>
-void PrintTree<double>     (TreeNode<double>*   node   );
+inline void PrintTree<double>       (TreeNode<double>*   node   );
 template <>
-void PrintTree<char*>      (TreeNode<char*>*    node   );
+inline void PrintTree<char*>        (TreeNode<char*>*    node   );
 
-uint32_t Hash(char* str);
+inline uint32_t Hash                (char* str);
 //-------------------------------------------------------------------------------------------
 
 #endif

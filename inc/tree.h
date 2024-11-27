@@ -36,7 +36,7 @@ TreeErrors AddNode(TreeNode<T>* node, T value, int connection_side) {
 }
 
 template <typename T>
-TreeErrors CreateNode(TreeNode<T>** node, T value) {
+inline TreeErrors CreateNode(TreeNode<T>** node, T value) {
     check_expression(node, NODE_POINTER_IS_NULL);
 
     *node = (TreeNode<T>*)calloc(1, sizeof(TreeNode<T>));
@@ -53,7 +53,7 @@ TreeErrors CreateNode(TreeNode<T>** node, T value) {
 }
 
 template <>
-TreeErrors CreateNode<char*>(TreeNode<char*>** node, char* value) {
+inline TreeErrors CreateNode<char*>(TreeNode<char*>** node, char* value) {
     check_expression(node, NODE_POINTER_IS_NULL);
 
     *node = (TreeNode<char*>*)calloc(1, sizeof(TreeNode<char*>));
@@ -74,9 +74,10 @@ template <typename T>
 TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_side) {
     check_expression(parent, NODE_POINTER_IS_NULL);
     check_expression(child , NODE_POINTER_IS_NULL);
-    check_expression(!CheckRepeats(parent, child), REPEATED_NODES_VALUES);
+    if(CheckRepeats(parent, child)) return REPEATED_NODES_VALUES;
 
     child->parent = parent;
+
     //It makes for ability to put in connection_side difference between parent and child values
     //So it's much easier to use binary_tree as sort_tree
     if(connection_side > 0) {
@@ -90,12 +91,21 @@ TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_sid
         parent->left  = child;
     }
     else {
-        color_printf(RED_TEXT, BOLD, "Wrong choice of connection side. It can't be equal to ZERO");
-
-        check_expression(false, NODES_CONNECTION_ERROR);
+        if(!parent->left) {
+            parent->left = child;
+        }
+        else if(!parent->right) {
+            parent->right = child;
+        }
     }
 
-    parent->number_of_kids++;
+    parent->number_of_kids = 0;
+    if(parent->left) {
+        parent->number_of_kids++;
+    }
+    if(parent->right) {
+        parent->number_of_kids++;
+    }
 
     return NO_TREE_ERRORS;
 }
@@ -116,7 +126,7 @@ TreeErrors TreeDtor(Tree<T>* tree) {
 }
 
 template <typename T>
-TreeErrors NodesDtor(TreeNode<T>** node) {
+inline TreeErrors NodesDtor(TreeNode<T>** node) {
     check_expression(node, NODE_POINTER_IS_NULL);
 
     if((*node)->left ) NodesDtor(&((*node)->left));
@@ -129,7 +139,7 @@ TreeErrors NodesDtor(TreeNode<T>** node) {
 }
 
 template<>
-TreeErrors NodesDtor<char*>(TreeNode<char*>** node) {
+inline TreeErrors NodesDtor<char*>(TreeNode<char*>** node) {
     check_expression(node, NODE_POINTER_IS_NULL);
 
     if((*node)->left ) NodesDtor(&((*node)->left));
@@ -200,7 +210,7 @@ TreeErrors CheckParent(TreeNode<T>* parent, TreeNode<T>* child) {
 }
 
 template <typename T>
-TreeErrors CheckRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
+inline TreeErrors CheckRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
     check_expression(parent, NODE_POINTER_IS_NULL);
     check_expression(child,  NODE_POINTER_IS_NULL);
 
@@ -212,7 +222,7 @@ TreeErrors CheckRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
 }
 
 template <>
-TreeErrors CheckRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
+inline TreeErrors CheckRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
     check_expression(parent, NODE_POINTER_IS_NULL);
     check_expression(child,  NODE_POINTER_IS_NULL);
 
@@ -232,7 +242,7 @@ TreeNode<T>* FindRoot(TreeNode<T>* node) {
 }
 
 template <typename T>
-TreeErrors FindRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
+inline TreeErrors FindRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
     if(!parent) return NO_TREE_ERRORS;
 
     if(parent->value == child->value) {
@@ -248,7 +258,7 @@ TreeErrors FindRepeats(TreeNode<T>* parent, TreeNode<T>* child) {
 }
 
 template <>
-TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
+inline TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
     if(!parent) return NO_TREE_ERRORS;
 
 
@@ -256,9 +266,8 @@ TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
         return REPEATED_NODES_VALUES;
     }
     if(parent->hash == child->hash) {
-        printf("HUIII\n");
         if(strcmp(parent->value, child->value) == 0) {
-            color_printf(RED_TEXT, BOLD, "Value : \"%s\" already in BinaryTree.\n", child->value);
+            color_printf(RED_TEXT, BOLD, "Value \"%s\" is already in BinaryTree.\n", child->value);
             return REPEATED_NODES_VALUES;
         }
     }
@@ -277,12 +286,12 @@ TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* child) {
 //This function takes node as argument to add ability
 //   of print not only the full tree but also subtree
 template<typename T>
-void PrintTree(TreeNode<T>* node) {
+inline void PrintTree(TreeNode<T>* node) {
     printf("()");
 }
 
 template<>
-void PrintTree<int>(TreeNode<int>* node) {
+inline void PrintTree<int>(TreeNode<int>* node) {
     check_expression(node, (void)NODE_POINTER_IS_NULL);
 
     printf("(");
@@ -293,7 +302,7 @@ void PrintTree<int>(TreeNode<int>* node) {
 }
 
 template<>
-void PrintTree<double>(TreeNode<double>* node) {
+inline void PrintTree<double>(TreeNode<double>* node) {
     check_expression(node, (void)NODE_POINTER_IS_NULL);
 
     printf("(");
@@ -304,7 +313,7 @@ void PrintTree<double>(TreeNode<double>* node) {
 }
 
 template<>
-void PrintTree<char *>(TreeNode<char*>* node) {
+inline void PrintTree<char *>(TreeNode<char*>* node) {
     check_expression(node, (void)NODE_POINTER_IS_NULL);
 
     printf("(");
@@ -314,7 +323,7 @@ void PrintTree<char *>(TreeNode<char*>* node) {
     printf(")");
 }
 
-uint32_t Hash(char* str) {
+inline uint32_t Hash(char* str) {
     if(!str) return 0;
 
     uint32_t hash = 5381;
