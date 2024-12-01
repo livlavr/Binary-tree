@@ -267,7 +267,7 @@ inline TreeErrors FindRepeats<char*>(TreeNode<char*>* parent, TreeNode<char*>* c
     }
     if(parent->hash == child->hash) {
         if(strcmp(parent->value, child->value) == 0) {
-            color_printf(RED_TEXT, BOLD, "Value \"%s\" is already in BinaryTree.\n", child->value);
+            color_printf(RED_COLOR, BOLD, "Value \"%s\" is already in BinaryTree.\n", child->value);
             return REPEATED_NODES_VALUES;
         }
     }
