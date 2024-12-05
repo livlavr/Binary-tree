@@ -13,8 +13,8 @@ enum TreeErrors {
     NODE_CALLOC_ERROR       = 1 << 3,
     NODE_ALREADY_TAKEN      = 1 << 4,
     NODE_BAD_POINTER        = 1 << 5,
-    NODE_LOST_KIDS          = 1 << 6,
-    NODE_FOREIGN_KIDS       = 1 << 7,
+    NODE_LOST_CHILDREN      = 1 << 6,
+    NODE_UNKNOWN_CHILDREN   = 1 << 7,
     PARENT_LOST_CHILD       = 1 << 8,
     REPEATED_NODES_VALUES   = 1 << 9,
     CHILD_ON_DIFFERENT_TREE = 1 << 10,
@@ -28,19 +28,8 @@ struct TreeNode {
     TreeNode<T>* left;
     TreeNode<T>* right;
     TreeNode<T>* parent;
-    int          number_of_kids;//Ndebug
+    int          number_of_children;//Ndebug
     TreeErrors   error;//TODO wrapper ndebug
-};
-
-template <>
-struct TreeNode<char*> {
-    char*            value;
-    TreeNode<char*>* left;
-    TreeNode<char*>* right;
-    TreeNode<char*>* parent;
-    int              number_of_kids;//Ndebug
-    uint32_t         hash;
-    TreeErrors       error;//TODO wrapper ndebug
 };
 
 template <typename T>
@@ -77,18 +66,14 @@ inline TreeErrors FindRepeats<char*>(TreeNode<char*>*  parent,
                                      TreeNode<char*>*  child  );
 
 template <typename T>
-TreeErrors TreeDtor                 (Tree<T>*            tree   );
+TreeErrors        TreeDtor          (Tree<T>*            tree   );
 template <typename T>
 inline TreeErrors NodesDtor         (TreeNode<T>**       node   );
-template <>
-inline TreeErrors NodesDtor<char*>  (TreeNode<char*>**   node   );
 
 template <typename T>
 TreeErrors AddNode                  (TreeNode<T>*        node, T value, int connection_side);
 template <typename T>
 inline TreeErrors CreateNode        (TreeNode<T>**       node, T     value                 );
-template <>
-inline TreeErrors CreateNode<char*> (TreeNode<char*>**  node, char* value                  );
 template <typename T>
 TreeErrors LinkNodes                (TreeNode<T>* parent_node, TreeNode<T>* child_node,
                                      int connection_side                                   );
