@@ -35,7 +35,6 @@ TreeErrors AddNode(TreeNode<T>* node, const T* value, int connection_side) {
     return NO_TREE_ERRORS;
 }
 
-// TODO pass const T*
 template <typename T>
 inline TreeErrors CreateNode(TreeNode<T>** node, const T* value) {
     check_expression(node, NODE_POINTER_IS_NULL);
@@ -43,12 +42,12 @@ inline TreeErrors CreateNode(TreeNode<T>** node, const T* value) {
     *node = (TreeNode<T>*)calloc(1, sizeof(TreeNode<T>));
     warning(node, NODE_CALLOC_ERROR);
 
-    (*node)->value          = value;
-    (*node)->error          = NO_TREE_ERRORS;
+    (*node)->value  = *value;
+    (*node)->left   = NULL;
+    (*node)->right  = NULL;
+    (*node)->parent = NULL;
+    (*node)->error  = NO_TREE_ERRORS;
     (*node)->number_of_children = CHILD_FREE;
-    (*node)->left           = NULL;
-    (*node)->right          = NULL;
-    (*node)->parent         = NULL;
 
     return NO_TREE_ERRORS;
 }
@@ -58,7 +57,7 @@ inline TreeErrors CreateNode(TreeNode<T>** node, const T* value) {
 template <typename T>
 TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_side) {
     check_expression(parent, NODE_POINTER_IS_NULL);
-    if(CheckRepeats(parent, child)) return REPEATED_NODES_VALUES;
+    check_expression(child,  NODE_POINTER_IS_NULL);
 
     child->parent = parent;
 
@@ -96,7 +95,7 @@ template <typename T>
 TreeErrors TreeDtor(Tree<T>* tree) {
     check_expression(tree, TREE_POINTER_IS_NULL);
 
-    NodesDtor(&(tree->root));
+    DestroySubtree(&(tree->root));
 
     free(tree->dump_svg_file);
     tree->dump_svg_file = NULL;
@@ -108,14 +107,24 @@ TreeErrors TreeDtor(Tree<T>* tree) {
 }
 
 template <typename T>
-inline TreeErrors NodesDtor(TreeNode<T>** node) {
-    check_expression(node, NODE_POINTER_IS_NULL);
-
-    if((*node)->left ) NodesDtor(&((*node)->left));
-    if((*node)->right) NodesDtor(&((*node)->right));
+inline TreeErrors DestroySingleNode(TreeNode<T>** node) {
+    check_expression(*node, NODE_POINTER_IS_NULL);
 
     free(*node);
     *node = NULL;
+
+    return NO_TREE_ERRORS;
+}
+
+template <typename T>
+inline TreeErrors DestroySubtree(TreeNode<T>** node) {
+    check_expression(node, NODE_POINTER_IS_NULL);
+    if(!(*node)) return NO_TREE_ERRORS;
+
+    if((*node)->left ) DestroySubtree(&((*node)->left));
+    if((*node)->right) DestroySubtree(&((*node)->right));
+
+    DestroySingleNode(node);
 
     return NO_TREE_ERRORS;
 }
@@ -185,7 +194,6 @@ inline void PrintTree(const TreeNode<T>* node) {
     if(node->left ) PrintTree(node->left );
     if(node->right) PrintTree(node->right);
     printf(")");
-
 }
 
 template<typename T>

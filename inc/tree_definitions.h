@@ -41,53 +41,35 @@ struct Tree {
 };
 
 //FUNCTION DEFINITION------------------------------------------------------------------------
-//TODO codestyle
 template <typename T>
-TreeErrors TreeInit                 (Tree<T>* tree, T root_value);
+TreeErrors TreeInit                 (Tree<T>* tree, const T* root_value);
 template <typename T>
-TreeErrors VerifyTree               (Tree<T>*            tree   );
+TreeErrors VerifyTree               (Tree<T>*      tree   );
 template <typename T>
-TreeErrors VerifyNodes              (TreeNode<T>*        node   );
+TreeErrors VerifyNodes              (TreeNode<T>*  node   );
 template <typename T>
-TreeErrors CheckParent              (TreeNode<T>*        node   );
-template <typename T>
-TreeErrors CheckRepeats             (TreeNode<T>*        parent,
-                                     TreeNode<T>*        child  );
-template <>
-TreeErrors CheckRepeats<char*>      (TreeNode<char*>*  parent,
-                                     TreeNode<char*>*  child  );
-template <typename T>
-TreeNode<T>* FindRoot               (TreeNode<T>*      node   );
-template <typename T>
-inline TreeErrors FindRepeats       (TreeNode<T>*      parent,
-                                     TreeNode<T>*      child  );
-template <>
-inline TreeErrors FindRepeats<char*>(TreeNode<char*>*  parent,
-                                     TreeNode<char*>*  child  );
+TreeErrors CheckParent              (TreeNode<T>*  node   );
 
 template <typename T>
-TreeErrors        TreeDtor          (Tree<T>*            tree   );
-template <typename T>
-inline TreeErrors NodesDtor         (TreeNode<T>**       node   );
+TreeErrors TreeDtor                 (Tree<T>*      tree   );
+template <typename T> inline
+TreeErrors    DestroySubtree        (TreeNode<T>** node   );
+template <typename T> inline
+TreeErrors    DestroySingleNode     (TreeNode<T>** node   );
 
 template <typename T>
-TreeErrors AddNode                  (TreeNode<T>*        node, T value, int connection_side);
-template <typename T>
-inline TreeErrors CreateNode        (TreeNode<T>**       node, T     value                 );
+TreeErrors AddNode                  (TreeNode<T>*        node, const T* value, int connection_side);
+template <typename T> inline
+TreeErrors CreateNode               (TreeNode<T>**       node, const T* value              );
 template <typename T>
 TreeErrors LinkNodes                (TreeNode<T>* parent_node, TreeNode<T>* child_node,
                                      int connection_side                                   );
 
 template <typename T>
 inline void PrintTree               (TreeNode<T>*        node   );
-template <>
-inline void PrintTree<int>          (TreeNode<int>*      node   );
-template <>
-inline void PrintTree<double>       (TreeNode<double>*   node   );
-template <>
-inline void PrintTree<char*>        (TreeNode<char*>*    node   );
+template<typename T>
+inline void PrintNode               (FILE *stream, const TreeNode<T> *node);
 
-inline uint32_t Hash                (char* str);
 //-------------------------------------------------------------------------------------------
 
 #endif

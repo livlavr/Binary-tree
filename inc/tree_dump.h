@@ -27,8 +27,8 @@ template <typename T>
 TYPE_OF_ERROR        ProcessTree        (TreeNode<T>*      node, FILE* dot_file );
 template <typename T>
 inline TYPE_OF_ERROR ProcessNode        (TreeNode<T>*      node, FILE* dot_file );
-inline
-TYPE_OF_ERROR        ProcessValue       (TreeNode<char*>*  node, FILE* dot_file );
+template <typename T>
+inline void          ProcessValue       (TreeNode<T>*  node, FILE* dot_file );
 template <typename T>
 TYPE_OF_ERROR        OutputToHtml       (Tree<T>*          tree                 );
 inline
@@ -147,15 +147,15 @@ inline TYPE_OF_ERROR ProcessNode(TreeNode<T>* node, FILE* dot_file) {
     return SUCCESS;
 }
 
-inline TYPE_OF_ERROR ProcessValue(TreeNode<int>* node, FILE* dot_file) {
+inline void ProcessValue(TreeNode<int>* node, FILE* dot_file) {
     fprintf(dot_file, "VALUE = %d", node->value);
 }
 
-inline TYPE_OF_ERROR ProcessValue(TreeNode<double>* node, FILE* dot_file) {
+inline void ProcessValue(TreeNode<double>* node, FILE* dot_file) {
     fprintf(dot_file, "VALUE = %3.lf", node->value);
 }
 
-inline TYPE_OF_ERROR ProcessValue(TreeNode<char*>* node, FILE* dot_file) {
+inline void ProcessValue(TreeNode<char*>* node, FILE* dot_file) {
     fprintf(dot_file, "VALUE = %s", node->value);
 }
 
