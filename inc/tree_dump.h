@@ -1,3 +1,6 @@
+#ifndef TREE_DUMP_H_
+#define TREE_DUMP_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,9 +9,7 @@
 #include <inttypes.h>
 
 #include "custom_asserts.h"
-
-#ifndef TREE_DUMP_H_
-#define TREE_DUMP_H_
+#include "errors.h"
 
 static const char* HTML_HEADER = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t"
                                   "<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\""
@@ -18,30 +19,30 @@ static const char* HTML_HEADER = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\
                                   "<div style = \"text-align: center;\" class = \"line\">";
 
 template<typename T>
-TYPE_OF_ERROR        TreeDump           (Tree<T>*          tree                 );
+TypeOfError        TreeDump           (Tree<T>*          tree                 );
 template<typename T>
-TYPE_OF_ERROR        SetDumpFile        (Tree<T>*          tree                 );
+TypeOfError        SetDumpFile        (Tree<T>*          tree                 );
 inline
-TYPE_OF_ERROR        ProcessFilename    (char*             filename             );
+TypeOfError        ProcessFilename    (char*             filename             );
 template <typename T>
-TYPE_OF_ERROR        ProcessTree        (TreeNode<T>*      node, FILE* dot_file );
+TypeOfError        ProcessTree        (TreeNode<T>*      node, FILE* dot_file );
 template <typename T>
-inline TYPE_OF_ERROR ProcessNode        (TreeNode<T>*      node, FILE* dot_file );
+inline TypeOfError ProcessNode        (TreeNode<T>*      node, FILE* dot_file );
 template <typename T>
 inline void          ProcessValue       (TreeNode<T>*  node, FILE* dot_file );
 template <typename T>
-TYPE_OF_ERROR        OutputToHtml       (Tree<T>*          tree                 );
+TypeOfError        OutputToHtml       (Tree<T>*          tree                 );
 inline
-TYPE_OF_ERROR        PrintHtmlHeader    (FILE*             dump_file            );
+TypeOfError        PrintHtmlHeader    (FILE*             dump_file            );
 template <typename T>
-TYPE_OF_ERROR        OpenDump           (Tree<T>*          tree                 );
+TypeOfError        OpenDump           (Tree<T>*          tree                 );
 
 static const size_t SIZE_OF_BUFFER = 40;
 
 template<typename T>
-TYPE_OF_ERROR TreeDump(Tree<T>* tree) {
-    check_expression(tree,       POINTER_IS_NULL);
-    check_expression(tree->root, POINTER_IS_NULL);
+TypeOfError TreeDump(Tree<T>* tree) {
+    warning(tree,       POINTER_IS_NULL);
+    warning(tree->root, POINTER_IS_NULL);
 
     system("mkdir -p Dump-source");
 
@@ -67,8 +68,8 @@ TYPE_OF_ERROR TreeDump(Tree<T>* tree) {
 }
 
 template<typename T>
-TYPE_OF_ERROR SetDumpFile(Tree<T>* tree) {
-    check_expression(tree, POINTER_IS_NULL);
+TypeOfError SetDumpFile(Tree<T>* tree) {
+    warning(tree, POINTER_IS_NULL);
 
     char *buffer_svg  = (char*)calloc(SIZE_OF_BUFFER, sizeof(char));
     char *buffer_html = (char*)calloc(SIZE_OF_BUFFER, sizeof(char));
@@ -101,8 +102,8 @@ TYPE_OF_ERROR SetDumpFile(Tree<T>* tree) {
 }
 
 inline
-TYPE_OF_ERROR ProcessFilename(char* filename) {
-    check_expression(filename, POINTER_IS_NULL);
+TypeOfError ProcessFilename(char* filename) {
+    warning(filename, POINTER_IS_NULL);
 
     char* filename_ptr  = filename;
     filename_ptr        = strchr(filename_ptr, ' ');
@@ -116,8 +117,8 @@ TYPE_OF_ERROR ProcessFilename(char* filename) {
 }
 
 template <typename T>
-TYPE_OF_ERROR ProcessTree(TreeNode<T>* node, FILE* dot_file) {
-    check_expression(dot_file, POINTER_IS_NULL);
+TypeOfError ProcessTree(TreeNode<T>* node, FILE* dot_file) {
+    warning(dot_file, POINTER_IS_NULL);
     if(!node) return SUCCESS;
 
     ProcessNode<T>(node, dot_file);
@@ -132,9 +133,9 @@ TYPE_OF_ERROR ProcessTree(TreeNode<T>* node, FILE* dot_file) {
 }
 
 template <typename T>
-inline TYPE_OF_ERROR ProcessNode(TreeNode<T>* node, FILE* dot_file) {
-    check_expression(dot_file, POINTER_IS_NULL);
-    check_expression(node,      POINTER_IS_NULL);
+inline TypeOfError ProcessNode(TreeNode<T>* node, FILE* dot_file) {
+    warning(dot_file, POINTER_IS_NULL);
+    warning(node,      POINTER_IS_NULL);
 
     fprintf(dot_file, "P%p [style = \"filled, rounded\", fillcolor=\"yellow:magenta\" gradientangle=270,"
            "label=\" {Node = [ %p ] | Parent = [ %p ] | Error = %d | Number of kids = %d | ",
@@ -160,7 +161,7 @@ inline void ProcessValue(TreeNode<char*>* node, FILE* dot_file) {
 }
 
 template <typename T>
-TYPE_OF_ERROR OutputToHtml(Tree<T>* tree) {
+TypeOfError OutputToHtml(Tree<T>* tree) {
     FILE* svg_file  = fopen(tree->dump_svg_file,  "w");
     FILE* html_file = fopen(tree->dump_html_file, "a");
 
@@ -183,8 +184,8 @@ TYPE_OF_ERROR OutputToHtml(Tree<T>* tree) {
     return SUCCESS;
 }
 
-inline TYPE_OF_ERROR PrintHtmlHeader(FILE* dump_file) {
-    check_expression(dump_file, POINTER_IS_NULL);
+inline TypeOfError PrintHtmlHeader(FILE* dump_file) {
+    warning(dump_file, POINTER_IS_NULL);
 
     fprintf(dump_file, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">"
                        "\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
@@ -194,7 +195,7 @@ inline TYPE_OF_ERROR PrintHtmlHeader(FILE* dump_file) {
 }
 
 template <typename T>
-TYPE_OF_ERROR OpenDump(Tree<T>* tree) {
+TypeOfError OpenDump(Tree<T>* tree) {
 
     char system_buffer[600] = "";
     snprintf(system_buffer, 300, "open %s", tree->dump_html_file);

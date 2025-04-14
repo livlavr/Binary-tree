@@ -12,7 +12,7 @@
 
 template <typename T>
 TreeErrors TreeInit(Tree<T>* tree, const T* root_value) {
-    check_expression(tree, NODE_POINTER_IS_NULL);
+    warning(tree, NODE_POINTER_IS_NULL);
 
     tree->error           = NO_TREE_ERRORS;
     tree->root            = NULL;
@@ -26,7 +26,7 @@ TreeErrors TreeInit(Tree<T>* tree, const T* root_value) {
 
 template <typename T>
 TreeErrors AddNode(TreeNode<T>* node, const T* value, int connection_side) {
-    check_expression(node, NODE_POINTER_IS_NULL);
+    warning(node, NODE_POINTER_IS_NULL);
 
     TreeNode<T>* new_node = NULL;
     CreateNode(&new_node, value);
@@ -37,7 +37,7 @@ TreeErrors AddNode(TreeNode<T>* node, const T* value, int connection_side) {
 
 template <typename T>
 inline TreeErrors CreateNode(TreeNode<T>** node, const T* value) {
-    check_expression(node, NODE_POINTER_IS_NULL);
+    warning(node, NODE_POINTER_IS_NULL);
 
     *node = (TreeNode<T>*)calloc(1, sizeof(TreeNode<T>));
     warning(node, NODE_CALLOC_ERROR);
@@ -56,18 +56,18 @@ inline TreeErrors CreateNode(TreeNode<T>** node, const T* value) {
 
 template <typename T>
 TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_side) {
-    check_expression(parent, NODE_POINTER_IS_NULL);
-    check_expression(child,  NODE_POINTER_IS_NULL);
+    warning(parent, NODE_POINTER_IS_NULL);
+    warning(child,  NODE_POINTER_IS_NULL);
 
     child->parent = parent;
 
     if(connection_side > 0) {
-        check_expression(!parent->right, NODE_ALREADY_TAKEN);
+        warning(!parent->right, NODE_ALREADY_TAKEN);
 
         parent->right = child;
     }
     else if(connection_side < 0) {
-        check_expression(!parent->left, NODE_ALREADY_TAKEN);
+        warning(!parent->left, NODE_ALREADY_TAKEN);
 
         parent->left  = child;
     }
@@ -93,7 +93,7 @@ TreeErrors LinkNodes(TreeNode<T>* parent, TreeNode<T>* child, int connection_sid
 
 template <typename T>
 TreeErrors TreeDtor(Tree<T>* tree) {
-    check_expression(tree, TREE_POINTER_IS_NULL);
+    warning(tree, TREE_POINTER_IS_NULL);
 
     DestroySubtree(&(tree->root));
 
@@ -108,7 +108,7 @@ TreeErrors TreeDtor(Tree<T>* tree) {
 
 template <typename T>
 inline TreeErrors DestroySingleNode(TreeNode<T>** node) {
-    check_expression(*node, NODE_POINTER_IS_NULL);
+    warning(*node, NODE_POINTER_IS_NULL);
 
     free(*node);
     *node = NULL;
@@ -118,7 +118,7 @@ inline TreeErrors DestroySingleNode(TreeNode<T>** node) {
 
 template <typename T>
 inline TreeErrors DestroySubtree(TreeNode<T>** node) {
-    check_expression(node, NODE_POINTER_IS_NULL);
+    warning(node, NODE_POINTER_IS_NULL);
     if(!(*node)) return NO_TREE_ERRORS;
 
     if((*node)->left ) DestroySubtree(&((*node)->left));
@@ -131,7 +131,7 @@ inline TreeErrors DestroySubtree(TreeNode<T>** node) {
 
 template <typename T>
 TreeErrors VerifyTree(Tree<T>* tree) {
-    check_expression(tree, TREE_POINTER_IS_NULL);
+    warning(tree, TREE_POINTER_IS_NULL);
 
     tree->error = VerifyNodes(tree->root);
 
@@ -140,24 +140,24 @@ TreeErrors VerifyTree(Tree<T>* tree) {
 
 template <typename T>
 TreeErrors VerifyNodes(TreeNode<T>* node) {
-    check_expression(node, NODE_POINTER_IS_NULL);
+    warning(node, NODE_POINTER_IS_NULL);
 
     int count_children = 0;
 
     if(node->left) {
         node->error |= CheckParent(node, node->left);
-        check_expression(!node->error, PARENT_LOST_CHILD);
+        warning(!node->error, PARENT_LOST_CHILD);
 
         node->error |= VerifyNodes(node->left);
-        check_expression(!node->error, node->error);
+        warning(!node->error, node->error);
         count_children++;
     }
     if(node->right) {
         node->error |= CheckParent(node, node->right);
-        check_expression(!node->error, PARENT_LOST_CHILD);
+        warning(!node->error, PARENT_LOST_CHILD);
 
         node->error |= VerifyNodes(node->right);
-        check_expression(!node->error, node->error);
+        warning(!node->error, node->error);
         count_children++;
     }
 
@@ -173,8 +173,8 @@ TreeErrors VerifyNodes(TreeNode<T>* node) {
 
 template <typename T>
 TreeErrors CheckParent(TreeNode<T>* parent, TreeNode<T>* child) {
-    check_expression(parent, NODE_POINTER_IS_NULL);
-    check_expression(child,  NODE_POINTER_IS_NULL);
+    warning(parent, NODE_POINTER_IS_NULL);
+    warning(child,  NODE_POINTER_IS_NULL);
 
     if(child->parent != parent) {
         child->error = PARENT_LOST_CHILD;
